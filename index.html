@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>BYTE FYTE</title>
+        <style>
+            body
+            {
+                background-color: #FFFFFF;
+                font-family: monospace;
+            }
+            #challenge
+            {
+                text-transform: uppercase;
+            }
+            button
+            {
+                font-family: monospace;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>BYTE FYTE</h1>
+        <h2>CONVERT THIS<span id = "base"></span><span id = "challenge"></span></h2>
+        <h2> result --> <span id = "result"></span></h2>
+        <!-- LEFT HAND -->
+        <button class = "binary_button" data-key="a" id = "btn_00">0</button>        
+        <button class = "binary_button" data-key="s" id = "btn_01">0</button>
+        <button class = "binary_button" data-key="d" id = "btn_02">0</button>
+        <button class = "binary_button" data-key="f" id = "btn_03">0</button>
+
+        <!-- RIGHT HAND -->
+        <button class = "binary_button" data-key="j" id = "btn_04">0</button>
+        <button class = "binary_button" data-key="k" id = "btn_05">0</button>
+        <button class = "binary_button" data-key="l" id = "btn_06">0</button>
+        <button class = "binary_button" data-key=";" id = "btn_07">0</button>
+        <script>
+            const btns      = document.querySelectorAll(".binary_button");
+            let base      = Math.round(Math.random());
+            const base_html = document.getElementById("base");
+        
+            let   challenge      = Math.round(Math.random() * 256);
+            const challenge_html = document.getElementById("challenge");
+            let   waiting        = false;
+            let   result         = "00000000";
+
+            const result_html = document.getElementById("result");
+            if(base == 0)
+            {
+                base_html.textContent = " HEX";
+                challenge = challenge.toString(16).padStart(2, "0");
+            }else
+            {
+                base_html.textContent = " DEC";
+                challenge = challenge.toString().padStart(3, "0");
+            }
+
+            
+            challenge_html.textContent = ` ${challenge}`;
+            document.addEventListener("keypress", (e)=>
+            {
+                result = "";
+                btns.forEach((btn) =>
+                {
+                    
+                    if(e.key == btn.dataset.key)
+                    {
+                        if(btn.textContent == "0")
+                        {
+                            btn.textContent = "1";
+                        }else 
+                        {
+                            btn.textContent = "0";
+                        }
+                        
+                    }
+                    result += btn.textContent.trim();
+                });
+
+                if(e.key == ' ')
+                {
+                    let check;
+                    if(!waiting)
+                    {
+                        check = parseInt(result, 2);
+                        if(base == 0)
+                        {
+                            check = check.toString(16).padStart(2, "0");
+                        }else if(base == 1)
+                        {
+                            check = check.toString().padStart(3, "0");
+                        }
+
+                        if(check == challenge)
+                        {
+                            check += " you're RIGHT!"
+                        }else
+                        {
+                            check += " you're WRONG!"
+                        }
+                            result_html.textContent = check;
+                            waiting                 = true;
+                    }else
+                    {
+                        base      = Math.round(Math.random());                                           
+                        challenge      = Math.round(Math.random() * 256);
+                        
+                        if(base == 0)
+                        {
+                            base_html.textContent = " HEX";
+                            challenge = challenge.toString(16).padStart(2, "0");
+                        }else
+                        {
+                            base_html.textContent = " DEC";
+                            challenge.toString().padStart(3, "0");
+                        }
+                        
+                        challenge_html.textContent = ` ${challenge}`;
+                        result_html.textContent = '';
+                        waiting                    = false;
+                    }
+                    
+                }
+            });
+
+            
+        </script>
+    </body>
+</html>
