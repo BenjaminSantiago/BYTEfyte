@@ -1,0 +1,166 @@
+<!-- ------------------------------------------------ -->
+<!-- ------------------------------------------------ -->
+<!DOCTYPE html>
+<html>
+    <!-- HEAD -->
+    <!-- ------------------------------------------------ -->
+    <head>
+        <title> PNG CARD test </title>
+        <style>
+            button
+            {
+                display: block;
+            }
+
+            #error_marquee
+            {
+                width           : 100vw;
+                height          : 40px;
+                color           : #FFFFFF;
+                background-color: #FF0000;
+                padding: 20px;
+                display:none;
+            }
+        </style>
+    </head>
+    <!-- ------------------------------------------------ -->
+
+    <!-- BODY -->
+    <!-- ------------------------------------------------ -->
+    <body>
+        <p id = "error_marquee"></p>
+        <p>press space to generate .PNG!</p>
+        
+        <p> add your ig handle</p>
+        <textarea id = "message">@bitch_new</textarea>
+        <button id ="make_card">MAKE CARD!</button>
+        
+        <p>your card preview:</p>
+        <img id = "preview" width = "400" alt = "your card preview!" hidden>
+        
+        <button id="share-card" hidden>Share card</button>
+
+        <!-- ------------------------------------------------ -->
+        <script>
+           
+            document.querySelector("#share-card").addEventListener("click",
+            async () =>
+            {
+                if(!generatedFile) return;
+
+                try
+                {
+                    await navigator.share({
+                        title: "BYTEfyte Card",
+                        files: [generatedFile]
+                    });
+                }
+                catch(error)
+                {
+                    if(error.name !== "AbortError")
+                    {
+                        console.error("Sharing failed:", error);
+                    }
+                }
+            });
+
+
+            function draw_wrapped_text(c, text, x, y, max_width, line_height)
+            {
+                //split up da words
+                const words = text.split(" ");
+
+                //where they go
+                let line = "";
+
+                //iterate ----->
+                for(const word of words)
+                {
+                    //add next word
+                    const test_line = line + word + " ";
+
+                    //if bigger than the lineeee e 
+                    if(c.measureText(test_line).width > max_width)
+                    {
+                        //draw the line
+                        c.fillText(line, x, y);
+
+                        //new line
+                        line  = word + " ";
+
+                        //ka-chingy
+                        y    += line_height;
+                    }
+                    else
+                    {
+                        //just put some shit there.
+                        line = test_line;
+                    }
+                }
+
+                c.fillText(line, x, y);
+            }
+
+            let generatedFile = null;
+
+
+            /* we clicked to make a card */
+            document.querySelector("#make_card").addEventListener("click", (e) =>
+            { 
+                const message = document.querySelector("#message").value;
+                if(message.trim() === "")
+                {
+                    document.querySelector("#error_marquee").style.display = "block"
+                    document.querySelector("#error_marquee").textContent = "PLEASE ENTER A DANG MESSAGE!";
+                    return;
+                }else
+                {
+                    document.querySelector("#error_marquee").style.display = "none"
+                }
+
+                const canvas        = document.createElement("canvas");
+                      canvas.width  = 1080;
+                      canvas.height = 1080;
+                const c             = canvas.getContext("2d");
+
+                c.fillStyle = "#FF00FF";
+                c.fillRect(0, 0, canvas.width, canvas.height);
+
+                c.fillStyle = "#00FFFF";
+                c.font      = "bold 72px Arial";
+                c.textAlign = "center";
+                
+                c.fillText("BYTEfyte", canvas.width/2, 150);
+
+                c.fillStyle = "#00FFFF";
+                c.font      = "42px Arial";
+                c.textAlign = "center";
+
+                draw_wrapped_text(c, message, canvas.width/2, 540, 800, 70);
+
+                const png_url       = canvas.toDataURL("image/png");
+                const link          = document.createElement("a");
+                        link.download = "bytefyte-card.png";
+                        link.href     = png_url;
+                document.querySelector("#preview").src = png_url;
+                document.querySelector("#preview").hidden = false;
+                link.click(); 
+
+                canvas.toBlob((blob) =>
+                {
+                    generatedFile = new File(
+                        [blob],
+                        "bytefyte-card.png",
+                        { type: "image/png" }
+                    );
+
+                    const canShare =
+                        navigator.share &&
+                        navigator.canShare?.({ files: [generatedFile] });
+
+                    document.querySelector("#share-card").hidden = !canShare;
+                }, "image/png");
+            });
+        </script>
+    </body>
+</html>
