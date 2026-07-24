@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Rive Test</title>
+
+        <style>
+            html, body 
+            {
+                margin: 0;
+                height: 100%;
+            }
+
+            canvas 
+            {
+                width : 600px;
+                height: 400px;
+                border: 1px solid black;
+            }
+
+            #answer_display
+            {
+                display: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>BYTE FYTE</h1>
+
+        <h2>binarize this: <span id = "challenge_html"></span></h2>
+        <h2 id = "answer_display"> your answer was: <span id = "wrong_or_right"></span> </h2>
+
+        <canvas id="riveCanvas"></canvas>
+
+        <script src="https://unpkg.com/@rive-app/canvas"></script>
+
+        <script>
+            let   challenge                  = Math.round(Math.random() * 4);
+            const challenge_html             = document.getElementById("challenge_html");
+                  challenge_html.textContent = challenge;
+            const canvas                     = document.getElementById("riveCanvas");
+            let main__vm;
+            let binary_value;
+            let correct;
+            let bit00 = 0;
+            let bit01 = 0;
+
+            const r = new rive.Rive(
+            {
+                src: "./bytebutton__components__04.riv",
+                canvas,
+                artboard     : "Artboard",
+                stateMachines: "State Machine 1",
+                autoplay     : true,
+                autoBind     : true,
+                onLoad       : () => 
+                {
+                    r.resizeDrawingSurfaceToCanvas();
+                    //console.log(r.contents);
+                }
+            }); 
+
+            window.addEventListener("keypress", (e) =>
+            {
+                //console.log(e.key);a
+                const vm = r.viewModelInstance;
+                const b01__press = vm.trigger("button01__press");
+                const b02__press = vm.trigger("button02__press");
+                const b01__value = vm.number("button01__value");
+                const b02__value = vm.number("button02__value");
+
+                if(e.key.toLowerCase() == 'a' && !event.repeat)
+                {
+                    b01__press.trigger();
+                    b01__value.value = 1 - b01__value.value;
+                    bit01 = b01__value.value;
+                }
+
+                if(e.key.toLowerCase() == 's' && !event.repeat)
+                {
+                    b02__press.trigger();
+                    b02__value.value = 1 - b02__value.value;
+                    bit00            = b02__value.value;
+                }
+
+                if(e.key == ' ' && !event.repeat)
+                {
+                    //convert buttons to one number
+                          binary_value   = (bit01 <<1) | bit00;
+                    const wrong_or_right = document.getElementById("wrong_or_right");
+
+                    //check against challenge
+                    if(binary_value == challenge)
+                    {
+                        correct = true;
+                        wrong_or_right.textContent = "CORRECT";
+                    }else 
+                    {
+                        correct = false;
+                        wrong_or_right.textContent = "WRONG!";
+                    }
+                
+                    //display result
+                    const answer                     = document.getElementById("answer_display");
+                          answer.style.display       = "block";
+                          challenge                  = Math.round(Math.random() * 3);
+                          challenge_html.textContent = challenge;
+                }
+            });
+
+           </script>
+    </body>
+</html>
